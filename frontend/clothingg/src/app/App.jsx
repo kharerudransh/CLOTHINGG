@@ -1,5 +1,4 @@
-import React from 'react'
-import { Toaster, toast } from 'react-hot-toast';
+import { Toaster } from 'react-hot-toast';
 import { RouterProvider } from 'react-router-dom';
 import { routes } from './app.routes';
 

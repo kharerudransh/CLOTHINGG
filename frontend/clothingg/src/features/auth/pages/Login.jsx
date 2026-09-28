@@ -1,6 +1,17 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+
+
+/* ── Google icon ── */
+const GoogleIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+  </svg>
+);
 
 /* ── eye icons ── */
 const EyeOpen = () => (
@@ -19,7 +30,7 @@ const EyeOff = () => (
 
 const Login = () => {
   const { handleLogin } = useAuth();
-
+  const navigate = useNavigate()
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -44,7 +55,12 @@ const Login = () => {
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return; }
     setLoading(true);
-    await handleLogin({ email: formData.email, password: formData.password });
+    const user=await handleLogin({ email: formData.email, password: formData.password });
+    if(user.role=="Buyer"){
+        navigate("/buyer-home");
+    }else if(user.role=="Seller"){
+        navigate("/seller-home");
+    }
     setLoading(false);
   };
 
@@ -178,6 +194,25 @@ const Login = () => {
                 <span className="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
               )}
               {loading ? 'Signing In…' : 'Sign In'}
+            </button>
+
+            {/* Google OAuth */}
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-[#e8e2da]" />
+              <span className="text-[10px] text-[#b0a898] tracking-[0.12em] uppercase">or</span>
+              <div className="flex-1 h-px bg-[#e8e2da]" />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => window.location.href = 'http://localhost:3000/api/auth/google'}
+              className="w-full py-3.5 border border-[#e0d9d0] bg-white text-[#1a1a1a] text-[11px] font-semibold
+                tracking-[0.15em] uppercase flex items-center justify-center gap-3
+                transition-all duration-300 cursor-pointer
+                hover:border-[#a07850] hover:shadow-[0_2px_12px_rgba(160,120,80,0.12)] hover:bg-[#faf9f7]"
+            >
+              <GoogleIcon />
+              Continue with Google
             </button>
 
             {/* Divider */}

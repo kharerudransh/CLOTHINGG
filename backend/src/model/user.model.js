@@ -1,5 +1,22 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+
+
+const addressSchema = new mongoose.Schema({
+    line1: { type: String, required: [true, "Address line 1 is required"], trim: true },
+    line2: { type: String, default: "", trim: true },
+    city: { type: String, required: [true, "City is required"], trim: true },
+    state: { type: String, required: [true, "State is required"], trim: true },
+    pincode: {
+        type: String,
+        required: [true, "Pincode is required"],
+        trim: true,
+        match: [/^[1-9][0-9]{5}$/, "Enter a valid 6-digit pincode"]
+    }
+}, { _id: false });
+
+
+
 const userSchema=new mongoose.Schema({
     firstName:{
         type:String,
@@ -8,24 +25,25 @@ const userSchema=new mongoose.Schema({
     },
     lastName:{
         type:String,
-        required:[true,"Last name is required"],
         trim:true
     },
     email:{
         type:String,
         required:[true,"Email is required"],
         trim:true, 
+        lowercase:true,
         unique:true
     },
     password:{
         type:String,
-        required:[true,"Password is required"],
-        trim:true,
+        required:function(){
+            return !this.googleId;
+        },
         select:false
     },
     contactNo:{
         type:String,
-        required:[true,"Contact number is required"],
+        sparse:true,
         trim:true,
         unique:true
     },
@@ -39,7 +57,18 @@ const userSchema=new mongoose.Schema({
         type:Boolean,
         default:false,
     }
-
+    ,
+    googleId:{
+        type:String,
+        sparse:true,
+        unique:true
+    },
+    address:{
+        required:function(){
+            return !this.googleId;
+        },
+        type:addressSchema,
+    }
 });
 
 userSchema.pre("save",async function(){
