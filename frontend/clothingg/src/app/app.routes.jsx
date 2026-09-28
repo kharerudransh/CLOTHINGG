@@ -11,6 +11,7 @@ import SeeAllProducts from "../features/products/page/SeeAllProducts";
 import SellerProfile from "../features/products/page/SellerProfile";
 import SellerLayout from "./SellerLayout";
 import BuyerLayout from "../features/User/components/BuyerLayout";
+import DetailedProduct from "../features/products/page/DetailedProduct";
 
 import HomeRedirect from "./HomeRedirect";
 import Protected from "../components/Protected";
@@ -36,6 +37,7 @@ export const routes = createBrowserRouter([
             { path: "/login", element: <Login /> },
             { path: "/forgot-password", element: <ForgotPassword /> },
             { path: "/reset-password", element: <ResetPassword /> },
+            { path: "/product/:productId", element: <DetailedProduct /> },
             {
                 element: <Protected role="Seller"><Outlet /></Protected>,
                 children: [
@@ -46,6 +48,7 @@ export const routes = createBrowserRouter([
                             { path: "/add-product",    element: <CreateProduct /> },
                             { path: "/see-products",   element: <SeeAllProducts /> },
                             { path: "/seller-profile", element: <SellerProfile /> },
+                            
                         ]
                     }
                 ]
@@ -59,6 +62,7 @@ export const routes = createBrowserRouter([
                             { path: "/buyer-home",     element: <UserHomePage /> },
                             { path: "/buyer-products", element: <AllProductsPage /> },
                             { path: "/buyer-profile",  element: <UserProfile /> },
+                            
                         ]
                     }
                 ]

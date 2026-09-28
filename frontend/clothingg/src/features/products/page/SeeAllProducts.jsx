@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useProduct } from '../hooks/useProduct';
 import { ScrollReveal } from '@/components/core/scroll-reveal';
 
 const SeeAllProducts = () => {
+  const navigate = useNavigate();
   const { handleGetsellerProduct, handleDeleteProduct } = useProduct();
   const sellerProducts = useSelector((state) => state.product?.sellerProducts || []);
   const loading = useSelector((state) => state.product?.loading || false);
@@ -345,17 +346,16 @@ const SeeAllProducts = () => {
                 <ScrollReveal key={product._id || index} delay={index * 0.05} y={20}>
                   <div
                     onClick={() => {
-                      setSelectedProduct(product);
-                      setActiveImageIndex(0);
+                      navigate(`/product/${product._id}`);
                     }}
                     className="group bg-[#ffffff] border border-[#e8e2da] overflow-hidden hover:border-[#1a1a1a] transition-all duration-300 flex flex-col h-full cursor-pointer shadow-2xs hover:shadow-md relative"
                   >
                     {/* Image Container */}
-                    <div className="relative aspect-[3/4] bg-[#1a1a1a] overflow-hidden">
+                    <div className="relative aspect-[3/4] bg-[#faf8f5] overflow-hidden flex items-center justify-center">
                       <img
                         src={coverImg}
                         alt={product.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-95 group-hover:opacity-100"
+                        className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-700"
                         loading="lazy"
                       />
 
@@ -442,17 +442,16 @@ const SeeAllProducts = () => {
                 <ScrollReveal key={product._id || index} delay={index * 0.04} y={15}>
                   <div
                     onClick={() => {
-                      setSelectedProduct(product);
-                      setActiveImageIndex(0);
+                      navigate(`/product/${product._id}`);
                     }}
                     className="group bg-[#ffffff] border border-[#e8e2da] hover:border-[#1a1a1a] p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-6 cursor-pointer transition-all duration-300 shadow-2xs hover:shadow-md"
                   >
                     {/* Thumbnail Image */}
-                    <div className="relative w-full sm:w-28 h-36 bg-[#1a1a1a] shrink-0 overflow-hidden">
+                    <div className="relative w-full sm:w-28 h-36 bg-[#faf8f5] shrink-0 overflow-hidden flex items-center justify-center p-1">
                       <img
                         src={coverImg}
                         alt={product.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500"
                       />
                       {imageCount > 1 && (
                         <span className="absolute bottom-1 right-1 px-1.5 py-0.5 bg-black/70 text-white text-[9px] font-medium">
@@ -646,10 +645,19 @@ const SeeAllProducts = () => {
                   </button>
 
                   <button
-                    onClick={() => setSelectedProduct(null)}
+                    onClick={() => {
+                      navigate(`/product/${selectedProduct._id}`);
+                    }}
                     className="flex-1 py-3 bg-[#1a1a1a] text-[#c8a882] text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#a07850] hover:text-[#1a1a1a] transition-colors cursor-pointer"
                   >
-                    Close Inspection
+                    View Full Product Page →
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedProduct(null)}
+                    className="px-4 py-3 border border-[#e8e2da] text-[#7a7269] text-xs font-bold uppercase tracking-wider hover:border-[#1a1a1a] hover:text-[#1a1a1a] transition-colors cursor-pointer"
+                  >
+                    Close
                   </button>
                 </div>
               </div>

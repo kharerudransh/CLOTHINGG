@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { useProduct } from '../../products/hooks/useProduct';
 
 /* ── inject keyframes once ── */
@@ -102,24 +103,30 @@ const placeholderBg = (i) =>
 
 /* ── product card ── */
 const ProductCard = ({ product, index }) => {
+  const navigate = useNavigate();
   const [wishlisted, setWishlisted] = useState(false);
   const symbol = currencySymbol(product.price?.currency);
   const amount = product.price?.amount;
   const firstImage = product.images?.[0];
 
   return (
-    <div className="bh-card" style={{
-      background: '#fff', border: '1px solid #e8e2da',
-      boxShadow: '0 2px 12px rgba(0,0,0,0.05)', overflow: 'hidden',
-    }}>
+    <div
+      className="bh-card"
+      onClick={() => navigate(`/product/${product._id}`)}
+      style={{
+        background: '#fff', border: '1px solid #e8e2da',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.05)', overflow: 'hidden',
+        cursor: 'pointer',
+      }}
+    >
       {/* image */}
-      <div style={{ height: '260px', overflow: 'hidden', position: 'relative', background: placeholderBg(index) }}>
+      <div style={{ height: '260px', overflow: 'hidden', position: 'relative', background: '#faf8f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {firstImage ? (
           <img
             className="bh-img-fade"
             src={firstImage}
             alt={product.title}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '10px', display: 'block' }}
             onError={e => { e.currentTarget.style.display = 'none'; }}
           />
         ) : (
@@ -158,7 +165,10 @@ const ProductCard = ({ product, index }) => {
           </p>
           <button
             className="bh-wish"
-            onClick={() => setWishlisted(v => !v)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setWishlisted(v => !v);
+            }}
             style={{
               width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
               background: wishlisted ? '#1a1a1a' : '#f5f3f0',
@@ -194,6 +204,7 @@ const Skeleton = () => (
 );
 
 const UserHomePage = () => {
+  const navigate  = useNavigate();
   const user      = useSelector((s) => s.auth?.user);
   const products  = useSelector((s) => s.product?.getAllProducts || []);
   const loading   = useSelector((s) => s.product?.loading);

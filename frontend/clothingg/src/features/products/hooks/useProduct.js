@@ -1,5 +1,5 @@
 import {useDispatch, useSelector} from "react-redux";
-import {createProduct ,getsellerProduct,getMe,deleteProduct, getAllProduct} from "../services/product.api.service.js";
+import {createProduct ,getsellerProduct,getMe,deleteProduct, getAllProduct,getDetailedProduct} from "../services/product.api.service.js";
 import {setSellerProducts,setLoading,setError, removeProduct, setAllProducts} from "../state/product.slice.js";
 import toast from "react-hot-toast";
 import{setUser} from "../../auth/state/auth.slice.js";
@@ -88,11 +88,24 @@ export const useProduct=()=>{
         }
     }
 
+    async function handleGetDetailedProduct(productId){
+        try{
+            const data=await getDetailedProduct(productId);
+            return data.product;
+        }catch(error){
+            console.log(error);
+            const message = error?.response?.data?.message || error.message || "Failed to Get Product";
+            toast.error(message);
+            dispatch(setError(message));
+        }
+    }
+
     return{
         handleCreateProduct,
         handleGetsellerProduct,
         handleGetMe,
         handleDeleteProduct,
-        handleGetAllProducts
+        handleGetAllProducts,
+        handleGetDetailedProduct
     }
 }

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { useProduct } from '../../products/hooks/useProduct';
 
 /* ── styles injected once ── */
@@ -56,12 +57,17 @@ const Skeleton = () => (
 
 /* ── Product Card ── */
 const ProductCard = ({ product, index, showNewBadge }) => {
+  const navigate = useNavigate();
   const [wished, setWished] = useState(false);
   const img = product.images?.[0];
   const price = product.price;
 
   return (
-    <div className="ap-card" style={{ background:'#fff', border:'1px solid #e8e2da', overflow:'hidden', position:'relative' }}>
+    <div
+      className="ap-card"
+      onClick={() => navigate(`/product/${product._id}`)}
+      style={{ background:'#fff', border:'1px solid #e8e2da', overflow:'hidden', position:'relative', cursor:'pointer' }}
+    >
       {/* NEW badge */}
       {showNewBadge && (
         <span style={{ position:'absolute', top:'12px', left:'12px', zIndex:2, fontSize:'8px', letterSpacing:'0.22em', textTransform:'uppercase', background:'#a07850', color:'#fff', padding:'4px 9px' }}>
@@ -76,9 +82,9 @@ const ProductCard = ({ product, index, showNewBadge }) => {
       )}
 
       {/* image */}
-      <div style={{ height:'240px', overflow:'hidden', background: placeholder(index) }}>
+      <div style={{ height:'240px', overflow:'hidden', background: '#faf8f5', display:'flex', alignItems:'center', justifyContent:'center' }}>
         {img
-          ? <img className="ap-img" src={img} alt={product.title} style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} onError={e => e.currentTarget.style.display='none'}/>
+          ? <img className="ap-img" src={img} alt={product.title} style={{ width:'100%', height:'100%', objectFit:'contain', padding:'10px', display:'block' }} onError={e => e.currentTarget.style.display='none'}/>
           : <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center' }}>
               <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="1" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
             </div>
@@ -99,7 +105,7 @@ const ProductCard = ({ product, index, showNewBadge }) => {
           <p style={{ fontFamily:'"Cormorant Garamond",Georgia,serif', fontSize:'19px', color:'#a07850', fontWeight:500 }}>
             {sym(price?.currency)}{price?.amount?.toLocaleString()}
           </p>
-          <button className="ap-wish" onClick={() => setWished(v => !v)} style={{
+          <button className="ap-wish" onClick={(e) => { e.stopPropagation(); setWished(v => !v); }} style={{
             width:'32px', height:'32px', display:'flex', alignItems:'center', justifyContent:'center',
             background: wished ? '#1a1a1a' : '#f5f3f0',
             border:`1px solid ${wished ? '#1a1a1a' : '#e8e2da'}`,
@@ -134,6 +140,7 @@ const PRICE_RANGES = [
 ];
 
 const AllProductsPage = () => {
+  const navigate = useNavigate();
   const products = useSelector(s => s.product?.getAllProducts || []);
   const loading  = useSelector(s => s.product?.loading);
   const { handleGetAllProducts } = useProduct();
@@ -270,12 +277,12 @@ const AllProductsPage = () => {
             {/* horizontal recent strip */}
             <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))', gap:'16px' }}>
               {recent.map((product, i) => (
-                <div key={product._id} className="ap-card" style={{ background:'#fff', border:'1px solid #e8e2da', overflow:'hidden', position:'relative', cursor:'pointer' }}>
+                <div key={product._id} className="ap-card" onClick={() => navigate(`/product/${product._id}`)} style={{ background:'#fff', border:'1px solid #e8e2da', overflow:'hidden', position:'relative', cursor:'pointer' }}>
                   {/* "NEW" ribbon */}
                   <div style={{ position:'absolute', top:0, left:0, right:0, height:'3px', background:'linear-gradient(90deg,#a07850,#c8a882)' }}/>
-                  <div style={{ height:'180px', overflow:'hidden', background: placeholder(i) }}>
+                  <div style={{ height:'180px', overflow:'hidden', background: '#faf8f5', display:'flex', alignItems:'center', justifyContent:'center' }}>
                     {product.images?.[0]
-                      ? <img className="ap-recent-img" src={product.images[0]} alt={product.title} style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} onError={e => e.currentTarget.style.display='none'}/>
+                      ? <img className="ap-recent-img" src={product.images[0]} alt={product.title} style={{ width:'100%', height:'100%', objectFit:'contain', padding:'8px', display:'block' }} onError={e => e.currentTarget.style.display='none'}/>
                       : <div style={{ width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center' }}>
                           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(0,0,0,0.12)" strokeWidth="1" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                         </div>
@@ -345,12 +352,12 @@ const AllProductsPage = () => {
               /* list view */
               <div style={{ display:'flex', flexDirection:'column', gap:'12px' }}>
                 {filtered.slice(0, visible).map((product, i) => (
-                  <div key={product._id} className="ap-card" style={{ background:'#fff', border:'1px solid #e8e2da', display:'flex', alignItems:'center', gap:'0', overflow:'hidden', cursor:'pointer', position:'relative' }}>
+                  <div key={product._id} className="ap-card" onClick={() => navigate(`/product/${product._id}`)} style={{ background:'#fff', border:'1px solid #e8e2da', display:'flex', alignItems:'center', gap:'0', overflow:'hidden', cursor:'pointer', position:'relative' }}>
                     {recentIds.has(product._id) && (
                       <div style={{ position:'absolute', left:0, top:0, bottom:0, width:'3px', background:'linear-gradient(180deg,#a07850,#c8a882)' }}/>
                     )}
-                    <div style={{ width:'100px', minWidth:'100px', height:'90px', background: placeholder(i), overflow:'hidden', flexShrink:0 }}>
-                      {product.images?.[0] && <img className="ap-img" src={product.images[0]} alt={product.title} style={{ width:'100%', height:'100%', objectFit:'cover' }} onError={e => e.currentTarget.style.display='none'}/>}
+                    <div style={{ width:'100px', minWidth:'100px', height:'90px', background: '#faf8f5', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden', flexShrink:0 }}>
+                      {product.images?.[0] && <img className="ap-img" src={product.images[0]} alt={product.title} style={{ width:'100%', height:'100%', objectFit:'contain', padding:'4px' }} onError={e => e.currentTarget.style.display='none'}/>}
                     </div>
                     <div style={{ flex:1, padding:'14px 20px', minWidth:0 }}>
                       <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:'12px' }}>

@@ -170,3 +170,41 @@ export const gellALLProducts=async(req,res)=>{
         });
     }
 }
+
+/**
+ * Get Single Detailed Product 
+ * route:/api/products/DetailedProduct/:productId
+ * description:Get product details
+ * method:GET
+ * 
+ */
+export const getDetailedProduct=async(req,res)=>{
+    try{
+        const {productId}=req.params;
+        if(!productId){
+            return res.status(404).json({
+                success:false,
+                message:"Product not found",
+            });
+        }
+        const product=await productModel.findById(productId).populate("seller", "firstName lastName email contactNo");
+        if(!product){
+            return res.status(404).json({
+                success:false,
+                message:"Product not found",
+            });
+        }
+        return res.status(200).json({
+            success:true,
+            message:"Product details fetched successfully",
+            product:product,
+        });
+    }
+    catch(error){
+        console.log("error", error);
+        return res.status(400).json({
+            success: false,
+            message: "Invalid product",
+        });
+    }
+}

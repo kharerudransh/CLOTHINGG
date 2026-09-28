@@ -1,7 +1,7 @@
 import express from "express";
 import multer from "multer";
 import { authenticateSeller } from "../middleware/auth.middleware.js";
-import {addProduct,getAllProducts,getMe,deleteProduct,gellALLProducts} from "../controller/product.controller.js";
+import {addProduct,getAllProducts,getMe,deleteProduct,gellALLProducts,getDetailedProduct} from "../controller/product.controller.js";
 import { validateAddProduct } from "../validation/product.validation.js";
 
 const upload=multer({
@@ -33,6 +33,14 @@ description:Get all products for buyer
 method:GET
 */
 productRouter.get("/getAllProducts", gellALLProducts);
+
+/**
+ For:Buyer
+ Public:route:/api/products/DetailedProduct/:productId
+ description:Get product details
+ method:GET
+ */
+productRouter.get("/DetailedProduct/:productId", getDetailedProduct);
 
 
 export default productRouter;
