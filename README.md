@@ -1,4 +1,4 @@
-# 👗 Clothingg — Multi-Vendor Fashion E-Commerce Platform
+# Clothingg — Multi-Vendor Fashion E-Commerce Platform
 
 A full-stack, role-based clothing marketplace built with the **MERN stack**. Sellers list and manage products with variants (size, color, price, stock). Buyers browse, search, and view products in an animated storefront.
 
