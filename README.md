@@ -131,8 +131,7 @@ The app runs at `http://localhost:5173`.
 
 ---
 
-## 👤 Author
+
 
 **Rudransh Khare**
-- GitHub: [@kharerudransh](https://github.com/kharerudransh)
-- LinkedIn: [rudransh-khare](https://www.linkedin.com/in/rudransh-khare)
+- LinkedIn: [rudransh-khare](https://www.linkedin.com/in/rudransh-khare-55558233a)
