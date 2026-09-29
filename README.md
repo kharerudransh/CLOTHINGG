@@ -6,15 +6,6 @@ A full-stack, role-based clothing marketplace built with the **MERN stack**. Sel
 
 ---
 
-## 📸 Screenshots
-
-<!-- Create a /screenshots folder and add 3-4 images: -->
-<!-- ![Buyer Home](./screenshots/buyer-home.png) -->
-<!-- ![Product Page](./screenshots/product-page.png) -->
-<!-- ![Seller Dashboard](./screenshots/seller-dashboard.png) -->
-
----
-
 ## ✨ Features
 
 ### 🔐 Authentication & Security
