@@ -208,3 +208,102 @@ export const getDetailedProduct=async(req,res)=>{
         });
     }
 }
+
+
+/**
+ * Add Product Variant
+ * route:/api/products/:productId/variants
+ * description:Add product variant
+ * method:POST
+ * 
+ */
+export const addProductVariant = async (req, res) => {
+    try {
+        const { productId } = req.params;
+
+        const product = await productModel.findOne({ _id: productId, seller: req.user.id });
+        if (!product) {
+            return res.status(404).json({
+                success: false,
+                message: "Product not found or you don't have access",
+            });
+        }
+
+        let variant;
+        try {
+            variant = JSON.parse(req.body.variant || "{}");
+        } catch {
+            return res.status(400).json({ success: false, message: "Invalid variant format" });
+        }
+        if (!variant.price && !variant.stock) {
+            return res.status(400).json({
+                success: false,
+                message: "Input is required",
+            });
+        }
+        const { stock, price } = variant;
+
+        let attributes;
+        try {
+            attributes = JSON.parse(req.body.attributes || "{}");
+        } catch {
+            return res.status(400).json({ success: false, message: "Invalid attributes format" });
+        }
+
+        if (!price) {
+            return res.status(400).json({
+                success: false,
+                message: "Price is required",
+            });
+        }
+        if (!price.amount || price.amount <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Price must be greater than 0",
+            });
+        }
+
+        if (!stock) {
+            return res.status(400).json({
+                success: false,
+                message: "Stock is required",
+            });
+        }
+        if (stock <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Stock must be greater than 0",
+            });
+        }
+
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "At least one product image is required",
+            });
+        }
+
+        const uploaded = await Promise.all(
+            req.files.map(async (file) =>
+                uploadFile({ buffer: file.buffer, fileName: file.originalname })
+            )
+        );
+        const images = uploaded.map((result) => ({ url: result.url }));
+
+        const newVariant = { stock, attributes, price, images };
+        product.variants.push(newVariant);
+        await product.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Product variant added successfully",
+            variant: newVariant,
+        });
+    } catch (error) {
+        console.log("error", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+};

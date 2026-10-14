@@ -7,6 +7,7 @@ import passport from "passport";
 import {Strategy as GoogleStrategy} from "passport-google-oauth20";
 import { CONFIG } from "./config/config.js";
 import productRouter from "./routes/product.routes.js";
+import cartRouter from "./routes/cart.routes.js";
 
 const app = express();
 
@@ -41,5 +42,9 @@ app.use("/api/auth",authRouter);
 
 //product routes
 app.use("/api/products",productRouter);
+
+//cart routes
+app.use("/api/cart",cartRouter);
+
 
 export default app;

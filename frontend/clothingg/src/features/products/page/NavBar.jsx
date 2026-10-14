@@ -3,6 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useAuth } from '../../auth/hooks/useAuth';
 import LogoutConfirmModal from '../../../components/LogoutConfirmModal';
+import { useCart } from '../../Cart/Hooks/useCart';
+import CartDrawer from '../../Cart/components/CartDrawer';
 
 /* ─────────────── sidebar links ─────────────── */
 const sidebarLinks = [
@@ -53,6 +55,16 @@ const NavBar = () => {
   const [edgeVisible, setEdgeVisible]   = useState(false);
   const [showLogout, setShowLogout]     = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
+  const [isCartOpen, setIsCartOpen]     = useState(false);
+
+  const { cartItems, handleGetCart } = useCart();
+
+  useEffect(() => {
+    handleGetCart();
+  }, []);
+
+  const totalCartCount = (cartItems || []).reduce((acc, item) => acc + (item.quantity || 1), 0);
+
   const closeTimer  = useRef(null);
   const edgeTimer   = useRef(null);
   const edgeHideTimer = useRef(null);
@@ -410,8 +422,58 @@ const NavBar = () => {
           </Link>
         </div>
 
-        {/* RIGHT — username */}
-        <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+        {/* RIGHT — cart + username */}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px' }}>
+          {/* Cart / Shopping Bag Button */}
+          <button
+            onClick={() => setIsCartOpen(true)}
+            title="View Shopping Bag"
+            style={{
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '6px 14px',
+              border: '1px solid #1a1a1a',
+              background: '#1a1a1a',
+              color: '#c8a882',
+              borderRadius: '9999px',
+              cursor: 'pointer',
+              transition: 'all 200ms ease',
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#a07850'; e.currentTarget.style.color = '#fff'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = '#1a1a1a'; e.currentTarget.style.color = '#c8a882'; }}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+            <span>Bag</span>
+            {totalCartCount > 0 && (
+              <span style={{
+                minWidth: '18px',
+                height: '18px',
+                padding: '0 4px',
+                borderRadius: '9999px',
+                background: '#c8a882',
+                color: '#1a1a1a',
+                fontSize: '10px',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                lineHeight: 1
+              }}>
+                {totalCartCount}
+              </span>
+            )}
+          </button>
+
           <button
             onClick={() => navigate('/seller-home')}
             style={{
@@ -449,6 +511,12 @@ const NavBar = () => {
           </button>
         </div>
       </nav>
+
+      {/* ── CART DRAWER ── */}
+      <CartDrawer
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+      />
 
       {/* ── LOGOUT CONFIRMATION MODAL ── */}
       <LogoutConfirmModal

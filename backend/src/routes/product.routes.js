@@ -1,7 +1,7 @@
 import express from "express";
 import multer from "multer";
 import { authenticateSeller } from "../middleware/auth.middleware.js";
-import {addProduct,getAllProducts,getMe,deleteProduct,gellALLProducts,getDetailedProduct} from "../controller/product.controller.js";
+import {addProduct,getAllProducts,getMe,deleteProduct,gellALLProducts,getDetailedProduct,addProductVariant} from "../controller/product.controller.js";
 import { validateAddProduct } from "../validation/product.validation.js";
 
 const upload=multer({
@@ -41,6 +41,16 @@ productRouter.get("/getAllProducts", gellALLProducts);
  method:GET
  */
 productRouter.get("/DetailedProduct/:productId", getDetailedProduct);
+
+
+/**
+ * For:Seller
+ * Description:Adding Product variant
+ * Route:/api/products/addProductVariant/:productId
+ * Method:POST
+ */
+productRouter.post("/:productId/variants",authenticateSeller,upload.array("images",7),addProductVariant);
+
 
 
 export default productRouter;

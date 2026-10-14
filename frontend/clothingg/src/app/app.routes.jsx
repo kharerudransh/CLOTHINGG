@@ -12,7 +12,7 @@ import SellerProfile from "../features/products/page/SellerProfile";
 import SellerLayout from "./SellerLayout";
 import BuyerLayout from "../features/User/components/BuyerLayout";
 import DetailedProduct from "../features/products/page/DetailedProduct";
-
+import SellerProductDetail from "../features/products/page/SellerProductDetail";
 import HomeRedirect from "./HomeRedirect";
 import Protected from "../components/Protected";
 import RootLayout from "./RootLayout";   
@@ -48,6 +48,7 @@ export const routes = createBrowserRouter([
                             { path: "/add-product",    element: <CreateProduct /> },
                             { path: "/see-products",   element: <SeeAllProducts /> },
                             { path: "/seller-profile", element: <SellerProfile /> },
+                            { path: "/seller-product/:productId", element: <SellerProductDetail /> },
                             
                         ]
                     }

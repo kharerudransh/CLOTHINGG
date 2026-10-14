@@ -346,7 +346,7 @@ const SeeAllProducts = () => {
                 <ScrollReveal key={product._id || index} delay={index * 0.05} y={20}>
                   <div
                     onClick={() => {
-                      navigate(`/product/${product._id}`);
+                      navigate(`/seller-product/${product._id}`);
                     }}
                     className="group bg-[#ffffff] border border-[#e8e2da] overflow-hidden hover:border-[#1a1a1a] transition-all duration-300 flex flex-col h-full cursor-pointer shadow-2xs hover:shadow-md relative"
                   >
@@ -442,7 +442,7 @@ const SeeAllProducts = () => {
                 <ScrollReveal key={product._id || index} delay={index * 0.04} y={15}>
                   <div
                     onClick={() => {
-                      navigate(`/product/${product._id}`);
+                      navigate(`/seller-product/${product._id}`);
                     }}
                     className="group bg-[#ffffff] border border-[#e8e2da] hover:border-[#1a1a1a] p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-6 cursor-pointer transition-all duration-300 shadow-2xs hover:shadow-md"
                   >
@@ -646,7 +646,7 @@ const SeeAllProducts = () => {
 
                   <button
                     onClick={() => {
-                      navigate(`/product/${selectedProduct._id}`);
+                      navigate(`/seller-product/${selectedProduct._id}`);
                     }}
                     className="flex-1 py-3 bg-[#1a1a1a] text-[#c8a882] text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#a07850] hover:text-[#1a1a1a] transition-colors cursor-pointer"
                   >

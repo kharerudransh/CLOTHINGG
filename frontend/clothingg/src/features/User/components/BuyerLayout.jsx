@@ -3,6 +3,8 @@ import { Link, useNavigate, useLocation, Outlet } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useAuth } from '../../../features/auth/hooks/useAuth';
 import LogoutConfirmModal from '../../../components/LogoutConfirmModal';
+import { useCart } from '../../../features/Cart/Hooks/useCart';
+import CartDrawer from '../../../features/Cart/components/CartDrawer';
 
 /* ── nav links ── */
 const NAV_LINKS = [
@@ -69,6 +71,15 @@ const BuyerLayout = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showLogout, setShowLogout] = useState(false);
   const [logoutLoading, setLogoutLoading] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const { cartItems, handleGetCart } = useCart();
+
+  useEffect(() => {
+    handleGetCart();
+  }, []);
+
+  const totalCartCount = (cartItems || []).reduce((acc, item) => acc + (item.quantity || 1), 0);
 
   const closeTimer    = useRef(null);
   const edgeTimer     = useRef(null);
@@ -335,13 +346,38 @@ const BuyerLayout = () => {
         {/* right — cart + avatar */}
         <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '8px' }}>
           {/* cart */}
-          <button style={{ width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: '1px solid transparent', borderRadius: '2px', cursor: 'pointer', color: '#1a1a1a', transition: 'background 200ms, border-color 200ms' }}
+          <button
+            onClick={() => setIsCartOpen(true)}
+            aria-label="Shopping Bag"
+            style={{ position: 'relative', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: '1px solid transparent', borderRadius: '2px', cursor: 'pointer', color: '#1a1a1a', transition: 'background 200ms, border-color 200ms' }}
             onMouseEnter={e => { e.currentTarget.style.background = '#f5f3f0'; e.currentTarget.style.borderColor = '#e0d9d0'; }}
             onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; }}>
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
               <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
             </svg>
+            {totalCartCount > 0 && (
+              <span style={{
+                position: 'absolute',
+                top: '-2px',
+                right: '-2px',
+                minWidth: '17px',
+                height: '17px',
+                padding: '0 4px',
+                borderRadius: '9999px',
+                background: '#a07850',
+                color: '#ffffff',
+                fontSize: '9.5px',
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+                lineHeight: 1
+              }}>
+                {totalCartCount}
+              </span>
+            )}
           </button>
 
           {/* avatar */}
@@ -362,6 +398,12 @@ const BuyerLayout = () => {
       <main>
         <Outlet />
       </main>
+
+      {/* ── CART DRAWER ── */}
+      <CartDrawer
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+      />
 
       {/* ── LOGOUT CONFIRMATION MODAL ── */}
       <LogoutConfirmModal

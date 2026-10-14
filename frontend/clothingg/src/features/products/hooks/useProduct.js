@@ -1,5 +1,5 @@
 import {useDispatch, useSelector} from "react-redux";
-import {createProduct ,getsellerProduct,getMe,deleteProduct, getAllProduct,getDetailedProduct} from "../services/product.api.service.js";
+import {createProduct ,getsellerProduct,getMe,deleteProduct, getAllProduct,getDetailedProduct,addProductVariant} from "../services/product.api.service.js";
 import {setSellerProducts,setLoading,setError, removeProduct, setAllProducts} from "../state/product.slice.js";
 import toast from "react-hot-toast";
 import{setUser} from "../../auth/state/auth.slice.js";
@@ -100,12 +100,30 @@ export const useProduct=()=>{
         }
     }
 
+
+    async function handleAddProductVariant(productId,newVariantData){
+        try{
+            dispatch(setLoading(true));
+            const response=await addProductVariant(productId,newVariantData);
+            toast.success(response.message || "Product variant added successfully!");
+            return response.variant;
+        }catch(error){
+            console.log(error);
+            const message = error?.response?.data?.message || error.message || "Failed to Add Product Variant";
+            toast.error(message);
+            dispatch(setError(message));
+        }finally{
+            dispatch(setLoading(false));
+        }
+    }
+
     return{
         handleCreateProduct,
         handleGetsellerProduct,
         handleGetMe,
         handleDeleteProduct,
         handleGetAllProducts,
-        handleGetDetailedProduct
+        handleGetDetailedProduct,
+        handleAddProductVariant
     }
 }
