@@ -22,9 +22,28 @@ export const cartSlice=createSlice({
             else{
                 state.items.push(action.payload);
             }
+        },
+        incrementQuantity: (state, action) => {
+            const { productId, variantId } = action.payload;
+            const item = state.items.find(
+                (item) => item.product._id === productId && item.variant === variantId
+            );
+            if (item) {
+                item.quantity += 1;
+            }
+        }
+        ,
+        decrementQuantity:(state,action)=>{
+            const{productId,variantId}=action.payload;
+            const item=state.items.find(
+                (item)=>item.product._id===productId && item.variant===variantId
+            );
+            if(item){
+                item.quantity-=1;
+            }
         }
     }
 })
 
-export const {setItems,addItem}=cartSlice.actions;
+export const {setItems,addItem,incrementQuantity,decrementQuantity}=cartSlice.actions;
 export default cartSlice.reducer;

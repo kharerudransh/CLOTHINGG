@@ -240,40 +240,93 @@ const UserHomePage = () => {
         }}/>
         <div aria-hidden="true" style={{ position: 'absolute', top: '10%', right: '8%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(160,120,80,0.10) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0, animation: 'bh-float 7s ease-in-out infinite' }}/>
 
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: '700px' }}>
-          <p style={{ fontSize: '10px', letterSpacing: '0.38em', textTransform: 'uppercase', color: '#a07850', marginBottom: '20px', animation: 'bh-fade-up 700ms cubic-bezier(0.16,1,0.3,1) 100ms both' }}>
-            Autumn / Winter 2026 — New Arrivals
-          </p>
-          <h1 style={{
-            fontFamily: '"Cormorant Garamond", Cormorant, Georgia, serif',
-            fontSize: 'clamp(2.8rem, 7vw, 5.5rem)', fontWeight: 300, lineHeight: 1.08,
-            color: '#1a1a1a', marginBottom: '24px',
-            animation: 'bh-fade-up 700ms cubic-bezier(0.16,1,0.3,1) 220ms both',
+        {/* ── hero content grid: text left + image right ── */}
+        <div style={{
+          position: 'relative', zIndex: 1, width: '100%', maxWidth: '1280px', margin: '0 auto',
+          display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', gap: 'clamp(32px, 5vw, 72px)',
+        }}>
+          {/* left: text content */}
+          <div>
+            <p style={{ fontSize: '10px', letterSpacing: '0.38em', textTransform: 'uppercase', color: '#a07850', marginBottom: '20px', animation: 'bh-fade-up 700ms cubic-bezier(0.16,1,0.3,1) 100ms both' }}>
+              Autumn / Winter 2026 — New Arrivals
+            </p>
+            <h1 style={{
+              fontFamily: '"Cormorant Garamond", Cormorant, Georgia, serif',
+              fontSize: 'clamp(2.8rem, 5vw, 5.5rem)', fontWeight: 300, lineHeight: 1.08,
+              color: '#1a1a1a', marginBottom: '24px',
+              animation: 'bh-fade-up 700ms cubic-bezier(0.16,1,0.3,1) 220ms both',
+            }}>
+              Welcome back,<br />
+              <em style={{ fontStyle: 'italic', color: '#a07850' }}>{firstName}.</em>
+            </h1>
+            <p style={{ fontSize: '14px', color: '#6b6057', lineHeight: 1.75, maxWidth: '440px', marginBottom: '40px', animation: 'bh-fade-up 700ms cubic-bezier(0.16,1,0.3,1) 340ms both' }}>
+              {products.length > 0
+                ? `${products.length} curated pieces waiting for you — from emerging designers to established labels.`
+                : `Discover this season's finest pieces — curated for those who value craft and understated elegance.`}
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', animation: 'bh-fade-up 700ms cubic-bezier(0.16,1,0.3,1) 460ms both' }}>
+              <button className="bh-btn-primary"
+                onClick={() => document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' })}
+                style={{ padding: '13px 32px', background: '#a07850', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>
+                Shop Now
+              </button>
+              <button style={{ padding: '13px 32px', background: 'transparent', color: '#1a1a1a', border: '1px solid #c8bfb5', cursor: 'pointer', fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif', transition: 'border-color 200ms ease' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = '#1a1a1a'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = '#c8bfb5'}>
+                View Lookbook
+              </button>
+            </div>
+          </div>
+
+          {/* right: hero fashion image */}
+          <div style={{
+            position: 'relative',
+            animation: 'bh-fade-up 900ms cubic-bezier(0.16,1,0.3,1) 350ms both',
           }}>
-            Welcome back,<br />
-            <em style={{ fontStyle: 'italic', color: '#a07850' }}>{firstName}.</em>
-          </h1>
-          <p style={{ fontSize: '14px', color: '#6b6057', lineHeight: 1.75, maxWidth: '440px', marginBottom: '40px', animation: 'bh-fade-up 700ms cubic-bezier(0.16,1,0.3,1) 340ms both' }}>
-            {products.length > 0
-              ? `${products.length} curated pieces waiting for you — from emerging designers to established labels.`
-              : `Discover this season's finest pieces — curated for those who value craft and understated elegance.`}
-          </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', animation: 'bh-fade-up 700ms cubic-bezier(0.16,1,0.3,1) 460ms both' }}>
-            <button className="bh-btn-primary"
-              onClick={() => document.getElementById('all-products')?.scrollIntoView({ behavior: 'smooth' })}
-              style={{ padding: '13px 32px', background: '#a07850', color: '#fff', border: 'none', cursor: 'pointer', fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif' }}>
-              Shop Now
-            </button>
-            <button style={{ padding: '13px 32px', background: 'transparent', color: '#1a1a1a', border: '1px solid #c8bfb5', cursor: 'pointer', fontSize: '11px', letterSpacing: '0.22em', textTransform: 'uppercase', fontFamily: 'Montserrat, sans-serif', transition: 'border-color 200ms ease' }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = '#1a1a1a'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = '#c8bfb5'}>
-              View Lookbook
-            </button>
+            {/* decorative gold corner accents */}
+            <div aria-hidden="true" style={{
+              position: 'absolute', top: '-12px', right: '-12px', width: '60px', height: '60px',
+              borderTop: '2px solid #a07850', borderRight: '2px solid #a07850',
+              pointerEvents: 'none', zIndex: 2, opacity: 0.6,
+            }}/>
+            <div aria-hidden="true" style={{
+              position: 'absolute', bottom: '-12px', left: '-12px', width: '60px', height: '60px',
+              borderBottom: '2px solid #a07850', borderLeft: '2px solid #a07850',
+              pointerEvents: 'none', zIndex: 2, opacity: 0.6,
+            }}/>
+            {/* subtle background glow behind the image */}
+            <div aria-hidden="true" style={{
+              position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+              width: '85%', height: '85%', borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(160,120,80,0.08) 0%, transparent 70%)',
+              filter: 'blur(30px)', pointerEvents: 'none', zIndex: 0,
+            }}/>
+            <img
+              src="/hero-fashion.png"
+              alt="Curated Fashion Collection"
+              style={{
+                width: '100%', height: 'auto', maxHeight: '520px',
+                objectFit: 'cover', display: 'block', position: 'relative', zIndex: 1,
+                boxShadow: '0 24px 64px rgba(26,26,26,0.12), 0 8px 20px rgba(160,120,80,0.08)',
+                border: '1px solid rgba(160,120,80,0.12)',
+              }}
+            />
+            {/* small label badge on image */}
+            <div style={{
+              position: 'absolute', bottom: '16px', left: '16px', zIndex: 3,
+              background: 'rgba(26,26,26,0.78)', backdropFilter: 'blur(8px)',
+              padding: '8px 16px', display: 'flex', alignItems: 'center', gap: '8px',
+            }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#a07850', display: 'inline-block' }}/>
+              <span style={{ fontSize: '9px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#f5f3f0', fontFamily: 'Montserrat, sans-serif' }}>
+                AW 2026 Collection
+              </span>
+            </div>
           </div>
         </div>
 
         {/* decorative vertical line */}
-        <div style={{ position: 'absolute', right: '5vw', top: '50%', transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', opacity: 0.2 }} className="hidden lg:flex">
+        <div style={{ position: 'absolute', right: '2vw', top: '50%', transform: 'translateY(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', opacity: 0.2 }}>
           <div style={{ width: '1px', height: '80px', background: '#1a1a1a' }}/>
           <p style={{ fontSize: '8px', letterSpacing: '0.3em', textTransform: 'uppercase', color: '#1a1a1a', writingMode: 'vertical-rl' }}>Autumn Winter 2026</p>
           <div style={{ width: '1px', height: '80px', background: '#1a1a1a' }}/>
@@ -363,6 +416,7 @@ const UserHomePage = () => {
             </div>
           </div>
         </Section>
+
 
         {/* grid */}
         {loading ? (

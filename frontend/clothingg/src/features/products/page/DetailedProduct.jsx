@@ -108,7 +108,7 @@ const DetailedProduct = () => {
           if (data) {
             setProduct(data);
             setActiveImageIndex(0);
-            setSelectedVariantIndex(null);
+            setSelectedVariantIndex(data.variants?.length > 0 ? 0 : null);
           } else {
             setError('Product not found or has been removed by the seller.');
           }
@@ -189,9 +189,13 @@ const DetailedProduct = () => {
     setIsAddingToCart(true);
 
     try {
-      // Determine variant ID (selected variant or first variant if available)
-      const variantId = (selectedVariantIndex !== null && product?.variants?.[selectedVariantIndex]?._id)
-        || (product?.variants?.length > 0 ? product.variants[0]._id : undefined);
+      // Variant is required — no fallback to base product
+      const variantId = product?.variants?.[selectedVariantIndex]?._id;
+      if (!variantId) {
+        toast.error('Please select a variant');
+        setIsAddingToCart(false);
+        return;
+      }
 
       const res = await handleAddtoCart({
         productId: product._id,
@@ -271,13 +275,8 @@ const DetailedProduct = () => {
 
   // Active Stock based on selected variant
   const currentStock = useMemo(() => {
-    if (selectedVariantIndex !== null && product?.variants?.[selectedVariantIndex]) {
-      return Number(product.variants[selectedVariantIndex].stock) || 0;
-    }
-    if (product?.variants && product.variants.length > 0) {
-      return product.variants.reduce((acc, v) => acc + (Number(v.stock) || 0), 0);
-    }
-    return 10;
+    const v = product?.variants?.[selectedVariantIndex];
+    return Number(v?.stock) || 0;
   }, [product, selectedVariantIndex]);
 
   // Images array fallback (shows variant images if variant is selected and has images)
@@ -297,6 +296,7 @@ const DetailedProduct = () => {
   const handleSelectVariant = (idx) => {
     setSelectedVariantIndex(idx);
     setActiveImageIndex(0);
+    setQuantity(1);
     if (idx !== null && product?.variants?.[idx]?.attributes) {
       const attrs = product.variants[idx].attributes;
       const sizeVal = attrs.Size || attrs.size || attrs.SIZE;
@@ -754,34 +754,6 @@ const DetailedProduct = () => {
 
                   {/* Variant cards */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                    {/* Base product card */}
-                    <button
-                      type="button"
-                      onClick={() => handleSelectVariant(null)}
-                      className={`p-2.5 text-left border transition-all flex items-center gap-3 cursor-pointer ${selectedVariantIndex === null
-                          ? 'border-[#1a1a1a] bg-[#faf8f5] ring-1 ring-[#c8a882] shadow-xs'
-                          : 'border-[#e8e2da] bg-white hover:border-[#9b8f82]'
-                        }`}
-                    >
-                      <div className="w-12 h-14 bg-[#f0ece6] border border-[#e8e2da] shrink-0 p-0.5 flex items-center justify-center">
-                        {product.images?.[0] ? (
-                          <img src={product.images[0]} alt="" className="w-full h-full object-contain" />
-                        ) : (
-                          <span className="text-[8px] text-[#9b8f82]">Piece</span>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[11px] font-bold text-[#1a1a1a] truncate mb-0.5">Standard / Base</p>
-                        <p className="text-xs font-semibold text-[#a07850] font-[Cormorant_Garamond]">
-                          {formatPrice(product.price)}
-                        </p>
-                      </div>
-                      {selectedVariantIndex === null && (
-                        <span className="w-4 h-4 rounded-full bg-[#1a1a1a] text-[#c8a882] text-[10px] flex items-center justify-center shrink-0">
-                          ✓
-                        </span>
-                      )}
-                    </button>
 
                     {product.variants.map((v, vIdx) => {
                       const isSelected = selectedVariantIndex === vIdx;
@@ -880,8 +852,8 @@ const DetailedProduct = () => {
                   </button>
                   <span className="w-12 text-center text-xs font-bold">{quantity}</span>
                   <button
-                    onClick={() => setQuantity((q) => Math.min(10, q + 1))}
-                    disabled={quantity >= 10}
+                    onClick={() => setQuantity((q) => Math.min(10, currentStock, q + 1))}
+                    disabled={quantity >= Math.min(10, currentStock)}
                     className="w-10 h-10 flex items-center justify-center text-sm font-semibold hover:bg-[#f5f3f0] disabled:opacity-30 cursor-pointer"
                   >
                     +

@@ -18,6 +18,7 @@ const CreateProduct = () => {
   const [description, setDescription] = useState('');
   const [priceAmount, setPriceAmount] = useState('');
   const [priceCurrency, setPriceCurrency] = useState('INR');
+  const [stock, setStock] = useState('');
   const [images, setImages] = useState([]); // Array of { id, file, preview }
   const [isDragOver, setIsDragOver] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -99,6 +100,7 @@ const CreateProduct = () => {
     if (!title.trim()) errors.title = 'Product title is required';
     if (!description.trim()) errors.description = 'Description is required';
     if (!priceAmount || Number(priceAmount) <= 0) errors.priceAmount = 'Enter a valid price amount';
+    if (stock === '' || !Number.isInteger(Number(stock)) || Number(stock) < 0) errors.stock = 'Enter a valid stock quantity (0 or more)';
     if (images.length === 0) errors.images = 'At least one product image is required';
 
     setFieldErrors(errors);
@@ -118,6 +120,7 @@ const CreateProduct = () => {
     formData.append('description', description.trim());
     formData.append('priceAmount', priceAmount);
     formData.append('priceCurrency', priceCurrency);
+    formData.append('stock', stock);
 
     images.forEach((imgObj) => {
       formData.append('images', imgObj.file);
@@ -292,7 +295,37 @@ const CreateProduct = () => {
               </div>
             </ScrollReveal>
 
-            {/* 3. Description Card */}
+            {/* 3. Stock Quantity Card */}
+            <ScrollReveal delay={0.18} y={20}>
+              <div className="bg-[#ffffff] border border-[#e8e2da] p-6 sm:p-8 rounded-none shadow-xs hover:border-[#c8a882] transition-colors duration-300">
+                <label htmlFor="product-stock" className="block text-xs font-bold uppercase tracking-[0.2em] text-[#1a1a1a] mb-2">
+                  Stock Quantity <span className="text-[#a07850]">*</span>
+                </label>
+                <input
+                  id="product-stock"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={stock}
+                  onChange={(e) => {
+                    setStock(e.target.value);
+                    if (fieldErrors.stock) setFieldErrors((p) => ({ ...p, stock: null }));
+                  }}
+                  placeholder="e.g. 25"
+                  className={`w-full bg-[#f9f8f6] border ${
+                    fieldErrors.stock ? 'border-red-500' : 'border-[#e8e2da]'
+                  } px-4 py-3 font-[Montserrat] text-lg font-semibold text-[#1a1a1a] placeholder:text-[#b0a898] focus:outline-hidden focus:border-[#a07850] focus:bg-[#ffffff] transition-all duration-200`}
+                />
+                {fieldErrors.stock && (
+                  <p className="mt-2 text-xs text-red-600 font-medium">{fieldErrors.stock}</p>
+                )}
+                <p className="mt-2 text-[11.5px] text-[#7a7269] leading-relaxed">
+                  Units available for this piece. You can add more variants (sizes, colors) later.
+                </p>
+              </div>
+            </ScrollReveal>
+
+            {/* 4. Description Card */}
             <ScrollReveal delay={0.2} y={20}>
               <div className="bg-[#ffffff] border border-[#e8e2da] p-6 sm:p-8 rounded-none shadow-xs hover:border-[#c8a882] transition-colors duration-300">
                 <div className="flex justify-between items-center mb-2">

@@ -5,7 +5,7 @@ import userModel from "../model/user.model.js";
 //Add new product
 export const addProduct = async (req, res) => {
     try {
-        const { title, description, priceAmount,priceCurrency } = req.body;
+        const { title, description, priceAmount, priceCurrency, stock } = req.body;
         const seller = req.user;
 
         if (!req.files || req.files.length === 0) {
@@ -15,24 +15,38 @@ export const addProduct = async (req, res) => {
             });
         }
 
-        const image = await Promise.all(
-            req.files.map(async(file) =>{
-                return await uploadFile({ 
-                    buffer:file.buffer,
-                    fileName:file.originalname
+        if (stock === undefined || stock === "" || !Number.isInteger(Number(stock)) || Number(stock) < 0)  {
+            return res.status(400).json({
+                success: false,
+                message: "A valid stock number is required",
+            });
+        }
+
+        const uploaded = await Promise.all(
+            req.files.map((file) =>
+                uploadFile({
+                    buffer: file.buffer,
+                    fileName: file.originalname,
                 })
-            }
             )
         );
-        const images = image.map((result) => result.url);
-    
+        const images = uploaded.map((result) => result.url);
+
+        const price = { amount: Number(priceAmount), currency: priceCurrency };
 
         const product = await productModel.create({
             title,
             description,
-            price: { amount: Number(priceAmount), currency:priceCurrency },
+            price,
             seller: seller.id,
             images,
+            variants: [
+                {
+                    images: images.map((url) => ({ url })),
+                    stock: Number(stock),
+                    price,
+                },
+            ],
         });
 
         return res.status(201).json({
@@ -40,12 +54,14 @@ export const addProduct = async (req, res) => {
             message: "Product added successfully",
             product,
         });
-
     } catch (error) {
-        console.log("error", error);
+        console.log("addProduct error:", error);
+        if (error.name === "ValidationError") {
+            return res.status(400).json({ success: false, message: error.message });
+        }
         return res.status(500).json({
             success: false,
-            message: "Internal server error",
+            message: error.message || "Internal server error",
         });
     }
 };

@@ -23,28 +23,17 @@ const productSchema=new mongoose.Schema({
         type: [String],
         required: [true, "At least one product image is required"],
     },
-    variants:[
-    {
-        images:[{
-            url:{
-                type:String,
-                required:true
-            },
-        }],
-        stock:{
-            type:Number,
-            required:true
+    variants: {
+    type: [
+        {
+            images: [{ url: { type: String, required: true } }],
+            stock: { type: Number, required: true, min: 1 },
+            attributes: { type: Map, of: String },
+            price: { type: priceSchema, required: true },
         },
-        attributes:{
-            type:Map,
-            of:String
-        },
-        price:{
-            type:priceSchema,
-            required:true
-        },
-    },
-]
+    ],
+    validate: [(v) => v.length > 0, "A product needs at least one variant"],
+},
 },{timestamps:true})
 
 const productModel=mongoose.model("product",productSchema);
