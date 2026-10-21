@@ -1,246 +1,266 @@
 <div align="center">
 
 # ⚜️ CLOTHINGG
-### *Curated Fashion & Artisanal Luxury Marketplace*
+### **A Full-Stack Multi-Vendor Fashion E-Commerce Platform**
+#### *Final Year Capstone Project | B.Tech / B.E. in Computer Science & Engineering*
 
 [![MERN Stack](https://img.shields.io/badge/Stack-MERN-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![React 19](https://img.shields.io/badge/React-19.2-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
 [![Node.js](https://img.shields.io/badge/Node.js-v18+-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![Express.js](https://img.shields.io/badge/Express.js-v5.0-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![MongoDB Atlas](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind-v4.3-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Razorpay](https://img.shields.io/badge/Razorpay-Integrated-0C2340?style=for-the-badge&logo=razorpay&logoColor=white)](https://razorpay.com/)
+[![Razorpay](https://img.shields.io/badge/Razorpay-Payment_Gateway-0C2340?style=for-the-badge&logo=razorpay&logoColor=white)](https://razorpay.com/)
 
 <p align="center">
-  A modern, high-performance multi-vendor luxury fashion marketplace. Features role-based access control, complex multi-attribute product variants, CDN media pipelines, an animated interactive shopping bag, and Razorpay secured checkout.
+  A production-grade, full-stack multi-vendor e-commerce web application featuring Role-Based Access Control (RBAC), multi-attribute hierarchical product variant management, cloud CDN media pipelines, complex MongoDB aggregation cart calculations, and Razorpay payment integration.
 </p>
 
-[Explore Features](#-core-features) • [System Architecture](#-system-architecture) • [API Reference](#-api-reference) • [Installation Guide](#-getting-started) • [Roadmap](#-roadmap)
+[Project Abstract](#-project-abstract) • [Database Design](#-database-design--er-model) • [Module Implementation](#-module-wise-implementation) • [API Specification](#-restful-api-specification) • [Setup & Execution](#-setup--reproduction-guide)
 
 </div>
 
 ---
 
-## 🌟 Overview
+## 🎓 Project Details
 
-**CLOTHINGG** bridges high-fashion boutique aesthetics with enterprise-grade e-commerce engineering. Built on the **MERN** stack, it empowers **Sellers** to manage intricate multi-attribute inventory (size, color, localized pricing, stock, high-resolution CDNs) and provides **Buyers** with an editorial shopping experience complete with dynamic variant switching, an artisanal slide-over cart drawer, and seamless **Razorpay payment checkout**.
+- **Project Title:** CLOTHINGG — Multi-Vendor Fashion E-Commerce Web System
+- **Domain:** Web Application Engineering / Distributed Systems / E-Commerce
+- **Architecture:** Client-Server RESTful Architecture (MERN Stack)
+- **Developer:** Rudransh Khare
+- **Academic Context:** Final Year Major Project / Capstone Submission
 
 ---
 
-## 🏗️ System Architecture
+## 📄 Project Abstract
+
+Traditional single-vendor e-commerce systems lack the flexibility required to host multiple independent merchants with heterogeneous product configurations. In modern fashion retail, a single garment often diverges into dozens of distinct Stock Keeping Units (SKUs) characterized by variable attributes (size, color, material), separate localized price points, and independent inventory levels.
+
+**CLOTHINGG** addresses these challenges by implementing an enterprise-grade multi-vendor platform built with modern architectural principles:
+1. **Multi-Tenant Role-Based Access Control (RBAC):** Strict operational segregation between **Sellers** (inventory managers) and **Buyers** (consumers) utilizing cryptographic JSON Web Tokens (JWT) stored in tamper-proof HttpOnly cookies alongside Google OAuth 2.0 federated identity.
+2. **Dynamic Variant Data Engine:** A hierarchical data model in MongoDB supporting multi-image arrays, custom SKU attribute maps, and localized currency pricing.
+3. **Optimized Aggregation Pipeline:** High-performance cart management that calculates sub-totals, discounts, and real-time inventory verification on the database layer.
+4. **Idempotent Payment Gateway Integration:** Server-side order signing and client-side modal checkout powered by the Razorpay API.
+
+---
+
+
+## 🔬 Database Design & Schema Modeling
+
+The database utilizes MongoDB's flexible document model to balance query performance with normalized relational integrity.
 
 ```mermaid
-graph TD
-    Client["Client (React 19 + Vite + Redux Toolkit)"]
-    API["API Gateway (Express v5)"]
-    Auth["JWT & Passport.js Auth"]
-    DB[(MongoDB Atlas)]
-    IK["ImageKit Media CDN"]
-    Mail["Resend / Nodemailer"]
-    RP["Razorpay Payment Gateway"]
+erDiagram
+    USER ||--o{ PRODUCT : "creates (Seller)"
+    USER ||--o| CART : "owns (Buyer)"
+    PRODUCT ||--|{ VARIANT : "contains"
+    CART ||--|{ CART_ITEM : "contains"
+    PRODUCT ||--o{ CART_ITEM : "referenced by"
 
-    Client -->|REST & Cookie Credentials| API
-    API --> Auth
-    Auth --> DB
-    API -->|Aggregation & Queries| DB
-    API -->|Optimized Uploads| IK
-    API -->|Email Verification & Reset| Mail
-    API -->|Order Creation API| RP
-    RP -->|Checkout Modal| Client
+    USER {
+        ObjectId _id PK
+        string name
+        string email UK
+        string password
+        string role "Buyer | Seller"
+        boolean isVerified
+        string googleId
+        object address
+    }
+
+    PRODUCT {
+        ObjectId _id PK
+        ObjectId seller FK
+        string title
+        string description
+        string category
+        array images
+        object price
+        array variants
+    }
+
+    VARIANT {
+        ObjectId _id PK
+        string sku
+        map attributes "Size, Color, Material"
+        object price "amount, currency"
+        number stock
+        array images
+    }
+
+    CART {
+        ObjectId _id PK
+        ObjectId user FK
+        array items
+        number totalAmount
+    }
+
+    CART_ITEM {
+        ObjectId product FK
+        ObjectId variant FK
+        number quantity
+    }
 ```
 
 ---
 
-## ✨ Core Features
+## 🧩 Module-Wise Implementation
 
-### 🔐 1. Authentication & Role-Based Access Control
-- **Dual Authentication Modes:** Email/password credentials or 1-click **Google OAuth 2.0** (Passport.js).
-- **Secure Email Verification:** Tokenized verification links delivered via **Resend / Nodemailer**.
-- **Cryptographic Security:** Passwords hashed with `bcrypt`, sessions authenticated via **JWT stored in HttpOnly cookies**.
-- **Role Guards:** Strict routing barriers separating `Buyer` from `Seller` permissions, with seamless state rehydration on refresh.
-- **Password Lifecycle:** Forgot password and tokenized password reset workflows.
+### 1. Authentication & Security Engine
+- **Hybrid Authentication:** Supports traditional credentials (with email verification via unique tokens) and one-click federated sign-in using **Google OAuth 2.0**.
+- **Defense in Depth:** 
+  - Passwords hashed using salted **bcrypt** algorithms.
+  - JWTs issued and transmitted strictly via **HttpOnly, SameSite cookies** to prevent Cross-Site Scripting (XSS) and token theft.
+  - Runtime request validation using **Zod** schemas to block injection attacks.
+  - Role-based route middleware (`authenticateUser`, `authenticateSeller`) intercepting requests at the controller boundary.
 
-### 🛍️ 2. Seller Hub & Variant Engine
-- **Dedicated Dashboard:** Complete inventory oversight, product management, and stock tracking.
-- **Complex Variant System:** Supports individual variant pricing, stock, custom attributes (Size, Color, Material), and separate multi-image galleries.
-- **CDN Cloud Uploads:** High-performance memory storage handling via **Multer** and automated upload optimization to **ImageKit CDN**.
+### 2. Seller Hub & Dynamic SKU Inventory
+- **Multi-Attribute Product Engine:** Allows merchants to generate root products with child variants possessing independent prices, inventory counters, and unique photo sets.
+- **Media Pipeline:** Handles binary file uploads in memory via **Multer**, streaming buffers directly to **ImageKit CDN** for automated transformation, compression, and global edge delivery.
+- **Inventory Lifecycle:** Real-time stock decrement, variant editing, and granular deletion cascades.
 
-### 🎨 3. Luxury Buyer Experience
-- **Editorial Fashion Storefront:** Aesthetic hero transitions, responsive product grids, and smooth animations using **Framer Motion**.
-- **Dynamic Product Detail Page:** Real-time price updates and gallery changes on variant selection.
-- **Buyer Account Management:** Profile management, customizable delivery addresses, and personalized settings.
+### 3. Buyer Fashion Storefront & UI Engineering
+- **High-Aesthetic Editorial Design:** Built using **Tailwind CSS v4** and modern typography (`Montserrat` and `Cormorant Garamond`), ensuring a luxury boutique experience.
+- **Smooth Micro-Interactions:** State transitions and interactive modals driven by **Framer Motion**.
+- **Dynamic Product Inspector:** Client-side variant selector instantly swaps gallery previews, pricing currencies, and stock availability badges.
 
-### 🛒 4. Smart Shopping Bag (Cart System)
-- **Slide-Over Cart Drawer:** Elegant, responsive drawer with live subtotal computations, complimentary shipping badges, and luxury packaging indicators.
-- **MongoDB Aggregation Pipeline:** Optimized backend lookups matching populated variant data and calculating live totals.
-- **Persistent Redux State:** Optimistic state handling with increment, decrement, and item removal actions.
+### 4. Real-Time Shopping Bag & Aggregation Engine
+- **Slide-Over Interactive Drawer:** Persistent, responsive slide-out bag with live quantity counters (+/-) and smooth dismiss triggers.
+- **MongoDB Aggregation Pipelines:** Replaces inefficient multi-query loops with atomic aggregation stages (`$match`, `$lookup`, `$unwind`, `$project`) to hydrate product variants and compute exact totals on the database server.
+- **Optimistic State Management:** Redux Toolkit slices synchronize UI changes immediately while communicating asynchronous mutations with backend APIs.
 
-### 💳 5. Razorpay Secured Checkout
-- **Server-Side Order Generation:** Secure backend endpoint `/api/cart/payment/create/order` generating cryptographically signed Razorpay order IDs.
-- **Interactive Checkout Modal:** Direct client-side invocation through Razorpay Checkout SDK with customer prefill and real-time payment handling.
-
----
-
-## 🛠️ Technology Stack
-
-| Layer | Technology | Version | Purpose |
-| :--- | :--- | :--- | :--- |
-| **Frontend** | React | `^19.2` | Core component architecture |
-| | Vite | `^8.0` | Ultra-fast build tool and dev server |
-| | React Router | `^7.18` | Declarative client-side routing & route guards |
-| | Redux Toolkit | `^2.12` | Global state (Auth, Cart, UI) |
-| | Tailwind CSS | `^4.3` | Modern utility styling |
-| | Framer Motion | `^13.4` | Micro-interactions and drawer animations |
-| | Axios | `^1.20` | HTTP client with cookie credentials |
-| | React Hot Toast | `^2.6` | Elegant toast alerts |
-| **Backend** | Node.js | `v18+` | Runtime environment |
-| | Express.js | `^5.0` | Next-generation asynchronous web framework |
-| | MongoDB & Mongoose | `^8.10` | Document database and schema modeling |
-| | Passport.js | `^0.7` | Google OAuth 2.0 social authentication |
-| | JSON Web Tokens | `^9.0` | Stateless authentication via HttpOnly cookies |
-| | Zod | `^3.24` | Strict request validation schemas |
-| | Razorpay SDK | `^2.9` | Payment order creation and verification |
-| | Multer & ImageKit | `^1.4` / `^1.3` | Multi-file buffer uploads to cloud CDN |
-| | Nodemailer & Resend | Latest | Transactional emails and verification |
+### 5. Financial Transaction & Payment Module
+- **Razorpay Integration:** Complete integration with India's leading payment gateway.
+- **Secure Transaction Handshake:**
+  1. Frontend dispatches checkout intent with verified subtotal.
+  2. Backend validates cart items, creates an official Razorpay Order, and returns a signed `order_id`.
+  3. Client launches Razorpay Checkout Modal populated with user contact details and the cryptographic order ID.
+  4. Real-time transaction success callback and client alert handling.
 
 ---
 
-## 🗺️ Application Routes
+## 🛠️ Technology Stack & Justification
 
-### Frontend Routes
-| Access | Route | Component / View |
-| :--- | :--- | :--- |
-| **Public** | `/` | Home Redirect / Landing |
-| **Public** | `/login` / `/register` | Buyer & Seller Authentication |
-| **Public** | `/verify-email` / `/verify` | Account Verification |
-| **Public** | `/forgot-password` / `/reset-password` | Password Recovery |
-| **Public** | `/product/:productId` | Detailed Product & Variant View |
-| **Seller** | `/seller-home` | Seller Dashboard |
-| **Seller** | `/add-product` | Multi-Variant Product Creator |
-| **Seller** | `/see-products` | Inventory Management Table |
-| **Seller** | `/seller-profile` | Seller Account Settings |
-| **Seller** | `/seller-product/:productId` | Product Editor & Variant Manager |
-| **Buyer** | `/buyer-home` | Curated Fashion Storefront |
-| **Buyer** | `/buyer-products` | Full Fashion Catalog with Filters |
-| **Buyer** | `/buyer-profile` | Buyer Profile & Delivery Addresses |
+| Layer | Technology | Version | Technical Justification |
+| :--- | :--- | :--- | :--- |
+| **Frontend Framework** | **React** | `^19.2` | Component modularity, Virtual DOM reconciliation, and Concurrent rendering. |
+| **Build Tooling** | **Vite** | `^8.0` | Lightning-fast HMR (Hot Module Replacement) and ES-module native builds. |
+| **Routing** | **React Router DOM** | `^7.18` | Declarative, nested routing with protected route guards for RBAC. |
+| **Global State** | **Redux Toolkit** | `^2.12` | Predictable state container with normalized caching for cart and auth state. |
+| **Styling** | **Tailwind CSS** | `^4.3` | Utility-first CSS reducing bundle footprint and enabling responsive layouts. |
+| **Backend Runtime** | **Node.js** | `v18+` | Event-driven, non-blocking I/O model suited for high-concurrency e-commerce. |
+| **API Framework** | **Express.js** | `^5.0` | Robust middleware ecosystem and native asynchronous route handling. |
+| **Database** | **MongoDB Atlas** | `^8.10` | High-scalability NoSQL document store ideal for polymorphic product schemas. |
+| **Authentication** | **JWT & Passport.js** | Latest | Stateless authentication coupled with standard OAuth 2.0 protocols. |
+| **Validation** | **Zod** | `^3.24` | Type-safe schema declarations ensuring strict payload sanitization. |
+| **Cloud CDN** | **ImageKit** | Latest | Offloads media asset serving, reducing server bandwidth and compute load. |
+| **Payment Gateway** | **Razorpay** | `^2.9` | Secure payment compliance, webhooks, and sandbox testing support. |
 
 ---
 
-## 📡 API Reference
+## 📡 RESTful API Specification
 
-### 🔑 Authentication (`/api/auth`)
-| Method | Endpoint | Description | Access |
+### Authentication Subsystem (`/api/auth`)
+| Method | Endpoint | Description | Auth Level |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/register` | Register new user (Buyer/Seller) | Public |
-| `GET` | `/verify` | Verify email address token | Public |
-| `POST` | `/login` | Authenticate user & issue HttpOnly JWT | Public |
-| `POST` | `/forgot-password` | Trigger password reset email | Public |
-| `POST` | `/reset-password` | Complete password reset | Public |
-| `GET` | `/getMe` | Fetch current session user | Private |
-| `GET` | `/google` | Initiate Google OAuth redirect | Public |
-| `GET` | `/google/callback` | OAuth callback handler | Public |
-| `POST` | `/logout` | Invalidate cookie & terminate session | Private |
+| `POST` | `/api/auth/register` | Register new user account | Public |
+| `GET` | `/api/auth/verify` | Verify email address token | Public |
+| `POST` | `/api/auth/login` | Authenticate credentials & issue HttpOnly JWT | Public |
+| `POST` | `/api/auth/forgot-password` | Dispatch tokenized password reset email | Public |
+| `POST` | `/api/auth/reset-password` | Execute password reset using signed token | Public |
+| `GET` | `/api/auth/getMe` | Retrieve active user profile from session | Authenticated User |
+| `GET` | `/api/auth/google` | Initiate OAuth 2.0 redirection flow | Public |
+| `GET` | `/api/auth/google/callback` | OAuth 2.0 authorization code exchange | Public |
+| `POST` | `/api/auth/logout` | Clear session cookie and revoke access | Authenticated User |
 
-### 👗 Product Catalog (`/api/products`)
-| Method | Endpoint | Description | Access |
+### Product & Inventory Subsystem (`/api/products`)
+| Method | Endpoint | Description | Auth Level |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/add` | Create base product with images | Seller Only |
-| `POST` | `/:productId/variants` | Attach new variant to existing product | Seller Only |
-| `GET` | `/sellerProduct` | Fetch all products owned by seller | Seller Only |
-| `DELETE` | `/delete` | Delete product and its variants | Seller Only |
-| `GET` | `/getAllProducts` | Browse marketplace products | Public |
-| `GET` | `/DetailedProduct/:productId` | Fetch detailed product metadata & variants | Public |
+| `POST` | `/api/products/add` | Publish new parent product with images | Seller Only |
+| `POST` | `/api/products/:productId/variants` | Add attribute variant (SKU) to existing product | Seller Only |
+| `GET` | `/api/products/sellerProduct` | Fetch catalog created by authenticated seller | Seller Only |
+| `DELETE`| `/api/products/delete` | Delete product and associated variants | Seller Only |
+| `GET` | `/api/products/getAllProducts` | Fetch all public inventory items with filters | Public |
+| `GET` | `/api/products/DetailedProduct/:productId`| Fetch single product with nested variant schema | Public |
 
-### 🛒 Cart & Payments (`/api/cart`)
-| Method | Endpoint | Description | Access |
+### Cart & Payment Subsystem (`/api/cart`)
+| Method | Endpoint | Description | Auth Level |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/add/:productId` | Add item without variant to cart | Private |
-| `POST` | `/add/:productId/:variantId` | Add specific product variant to cart | Private |
-| `GET` | `/get` | Fetch buyer cart with aggregated calculations | Private |
-| `PATCH` | `/quantity/increase/:productId/:variantId?`| Increment item quantity (+1) | Private |
-| `PATCH` | `/quantity/decrease/:productId/:variantId?`| Decrement item quantity (-1) | Private |
-| `DELETE` | `/remove/:productId/:variantId?` | Remove item from cart | Private |
-| `POST` | `/payment/create/order` | **Generate Razorpay order for cart checkout** | Private |
+| `POST` | `/api/cart/add/:productId` | Add base product to cart | Authenticated Buyer |
+| `POST` | `/api/cart/add/:productId/:variantId` | Add specific variant SKU to cart | Authenticated Buyer |
+| `GET` | `/api/cart/get` | Retrieve aggregated cart with calculated subtotal | Authenticated Buyer |
+| `PATCH`| `/api/cart/quantity/increase/:productId/:variantId?`| Increment item quantity counter | Authenticated Buyer |
+| `PATCH`| `/api/cart/quantity/decrease/:productId/:variantId?`| Decrement item quantity counter | Authenticated Buyer |
+| `DELETE`| `/api/cart/remove/:productId/:variantId?` | Remove item from cart array | Authenticated Buyer |
+| `POST` | `/api/cart/payment/create/order` | **Generate Razorpay cryptographic order ID** | Authenticated Buyer |
 
 ---
 
-## 📁 Repository Structure
+## 📂 Source Code Directory Organization
 
 ```
 CLOTHINGG/
 ├── backend/
 │   ├── src/
-│   │   ├── config/              # Centralized environment configuration
-│   │   ├── controller/          # Request handlers (auth, product, cart)
-│   │   ├── DAO/                 # Data access layer
-│   │   ├── middleware/          # JWT auth & role validation guards
-│   │   ├── model/               # Mongoose schemas (user, product, cart)
-│   │   ├── routes/              # Express route routers
-│   │   ├── services/            # Payment (Razorpay), CDN (ImageKit), Mail
+│   │   ├── config/              # Centralized environment configurations
+│   │   ├── controller/          # Request-response controllers (Auth, Cart, Product)
+│   │   ├── DAO/                 # Database Access Objects
+│   │   ├── middleware/          # JWT authentication and Role guards
+│   │   ├── model/               # Mongoose Schemas (User, Product, Price, Cart)
+│   │   ├── routes/              # Express API route modules
+│   │   ├── services/            # Microservices (ImageKit, Mailer, Razorpay)
 │   │   ├── validation/          # Zod schema definitions
-│   │   └── app.js               # Express application initialization
-│   ├── .env                     # Server environment secrets
-│   ├── package.json
-│   └── server.js
+│   │   └── app.js               # Application setup & middleware bindings
+│   ├── .env                     # Server environment variables
+│   ├── package.json             # Backend dependencies
+│   └── server.js                # Server listener entrypoint
 └── frontend/
     └── clothingg/
         ├── public/              # Static branding and assets
         ├── src/
-        │   ├── app/             # Application router & base layouts
-        │   ├── components/      # Shared navigation, guards, footer
-        │   ├── features/
-        │   │   ├── auth/        # Login, registration, token verification
-        │   │   ├── Cart/        # Cart drawer, useCart hook, Redux slice, API
-        │   │   ├── products/    # Product creation, variant details, galleries
-        │   │   └── User/        # Storefront pages, buyer layouts, profile
-        │   ├── store/           # Redux Toolkit store configuration
-        │   ├── App.jsx
-        │   ├── index.css        # Tailwind CSS entrypoint
-        │   └── main.jsx
-        ├── index.html           # HTML template with Razorpay SDK
-        ├── package.json
-        └── vite.config.js
+        │   ├── app/             # Application router & Layout wrappers
+        │   ├── components/      # Reusable UI widgets & Protected Route wrappers
+        │   ├── features/        # Feature-driven modular architecture
+        │   │   ├── auth/        # Login, Register, Password Recovery, Slices
+        │   │   ├── Cart/        # Cart Drawer, useCart Hook, Redux Slice, Cart API
+        │   │   ├── products/    # Product creation, Variant manager, Detailed View
+        │   │   └── User/        # Fashion catalog, Landing views, Buyer Profile
+        │   ├── store/           # Redux Toolkit global store configuration
+        │   ├── App.jsx          # Root component
+        │   ├── index.css        # Tailwind CSS directives
+        │   └── main.jsx         # DOM entrypoint
+        ├── index.html           # HTML template with Razorpay Checkout SDK
+        ├── package.json         # Frontend dependencies
+        └── vite.config.js       # Vite build configurations
 ```
 
 ---
 
-## 🚀 Getting Started
+## 💻 Setup & Reproduction Guide
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (v18.0.0 or higher)
-- [MongoDB](https://www.mongodb.com/) (Atlas cluster or local instance)
-- [Razorpay Account](https://razorpay.com/) (API Key ID & Secret)
-- [ImageKit Account](https://imagekit.io/) (Image hosting CDN)
-- [Google Cloud Console](https://console.cloud.google.com/) (OAuth credentials)
+- **Node.js:** `v18.0.0` or higher
+- **MongoDB:** Accessible MongoDB Atlas Connection String
+- **Razorpay Account:** Test Key ID & Secret
+- **ImageKit Account:** Public Key, Private Key & URL Endpoint
+- **Google Cloud Console:** Client ID & Secret for OAuth 2.0
 
----
-
-### 1. Clone Repository
-```bash
-git clone https://github.com/kharerudransh/CLOTHINGG.git
-cd CLOTHINGG
-```
-
-### 2. Backend Configuration
+### Step 1: Backend Environment Configuration
+Navigate to the `backend/` directory:
 ```bash
 cd backend
 npm install
 ```
 
-Create `.env` inside `backend/` directory:
+Create a `.env` file in `backend/` with the following parameters:
 ```env
-# Server
 PORT=3000
+MONGO_URL=mongodb+srv://<username>:<password>@cluster0.mongodb.net/CLOTHINGGG
+JWT_TOKEN=your_cryptographically_secure_jwt_secret
 
-# Database
-MONGO_URL=mongodb+srv://<username>:<password>@cluster.mongodb.net/CLOTHINGGG
-
-# Security
-JWT_TOKEN=your_secure_random_jwt_secret
-
-# Mail Service (Gmail / Resend)
+# Mailer Credentials
 GMAIL_USER=your_email@gmail.com
-GMAIL_APP_PASSWORD=your_app_password
+GMAIL_APP_PASSWORD=your_gmail_app_password
 RESEND_MAIL=your_resend_api_key
 MAIL_FROM=onboarding@resend.dev
 
@@ -248,63 +268,80 @@ MAIL_FROM=onboarding@resend.dev
 GOOGLE_CLIENTID=your_google_client_id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 
-# ImageKit Media Storage
-ImageKitURLENDPOINTS=https://ik.imagekit.io/your_id
-ImageKit_Public_Key=your_imagekit_public_key
-ImageKit_Private_Key=your_imagekit_private_key
+# ImageKit Storage CDN
+ImageKitURLENDPOINTS=https://ik.imagekit.io/your_endpoint
+ImageKit_Public_Key=your_public_key
+ImageKit_Private_Key=your_private_key
 
 # Razorpay Payment Gateway
 RAZORPAY_KEY_ID=rzp_test_your_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_secret
 ```
 
-Launch the backend development server:
+Start the backend server:
 ```bash
 npm run dev
 ```
+*Backend runs on `http://localhost:3000`.*
 
 ---
 
-### 3. Frontend Configuration
+### Step 2: Frontend Client Configuration
+Navigate to the frontend application:
 ```bash
 cd ../frontend/clothingg
 npm install
 ```
 
-*(Optional)* Create a `.env` in `frontend/clothingg/`:
+*(Optional)* Create a `.env` file in `frontend/clothingg/`:
 ```env
 VITE_RAZORPAY_KEY_ID=rzp_test_your_key_id
 ```
 
-Run Vite development server:
+Start the client development server:
 ```bash
 npm run dev
 ```
-Open **`http://localhost:5173`** in your browser.
+*Frontend will be hosted on `http://localhost:5173`.*
 
 ---
 
-## 🧭 Roadmap
+## 🧪 Testing & Demonstration Workflows (For Viva)
 
-- [x] Role-based user authentication (Buyer / Seller) with Google OAuth 2.0
-- [x] Multi-attribute product variant engine with ImageKit CDN integration
-- [x] Interactive slide-over Shopping Bag with live aggregation totals
-- [x] Razorpay Payment Gateway integration (Server Order generation + Client modal)
-- [ ] Payment Webhook verification & Order confirmation history
-- [ ] AI-powered visual fashion assistant & style recommendation chatbot
-- [ ] Multi-currency conversion switcher (USD / INR / EUR)
-- [ ] Production deployment (Vercel + Render + MongoDB Atlas)
+1. **Role-Based Registration & Login:**
+   - Register a `Seller` account at `/register`. Verify email or sign in.
+   - Access `/seller-home` to view the merchant dashboard. Confirm that `/buyer-home` routes remain protected.
+2. **Product & Multi-Variant Publishing:**
+   - Go to `/add-product` as a Seller. Upload high-res images and configure variants (e.g., Size: `M`, `L`, Color: `Black`, `Beige`, with distinct pricing and stock).
+3. **Consumer Catalog & Cart Aggregation:**
+   - Log in with a `Buyer` account. Browse `/buyer-products` and navigate to the product detail view.
+   - Switch variants dynamically to observe real-time price and gallery switching.
+   - Click **Add to Bag** to invoke the slide-over Cart Drawer. Test quantity incrementation and item deletion.
+4. **Razorpay Payment Checkout:**
+   - Click **Proceed to Secured Checkout** in the Cart Drawer.
+   - Observe the backend generating an order via `/api/cart/payment/create/order`.
+   - The interactive Razorpay modal launches, prefilled with the buyer's details, ready for test card/UPI payment completion.
 
 ---
 
-## 👨‍💻 Author
+## 🔮 Future Enhancements & Scope
 
-**Rudransh Khare**
-- GitHub: [@kharerudransh](https://github.com/kharerudransh)
-- LinkedIn: [Rudransh Khare](https://www.linkedin.com/in/rudransh-khare-55558233a)
+- [ ] **AI-Powered Style Assistant:** LLM-powered conversational agent assisting buyers with personalized outfit matching and styling advice.
+- [ ] **Payment Webhook Verification:** Full backend webhook ingestion verifying signature hashes to record finalized orders in an `Order` collection.
+- [ ] **Multi-Currency Dynamic Conversion:** Real-time exchange rate API integration (USD, EUR, GBP, INR).
+- [ ] **Full Production Deployment:** CI/CD pipeline targeting Docker containers, Vercel (Frontend), and Render (Backend).
+
+---
+
+## 👨‍🎓 Project Contributor & Student Info
+
+- **Student Name:** Rudransh Khare
+- **Degree:** Bachelor of Technology (B.Tech) — Computer Science & Engineering
+- **GitHub:** [@kharerudransh](https://github.com/kharerudransh)
+- **LinkedIn:** [Rudransh Khare](https://www.linkedin.com/in/rudransh-khare-55558233a)
 
 ---
 
 <div align="center">
-  <sub>Built with passion for high fashion and modern web technologies.</sub>
+  <sub>Submitted in partial fulfillment of the requirements for the Degree of Bachelor of Technology in Computer Science & Engineering.</sub>
 </div>
