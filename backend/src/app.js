@@ -11,8 +11,26 @@ import cartRouter from "./routes/cart.routes.js";
 
 const app = express();
 
+app.set("trust proxy", 1);
+
+const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    process.env.FRONTEND_URL,
+].filter(Boolean);
+
 app.use(cors({
-    origin: "http://localhost:5173",  // exact frontend URL, wildcard nahi
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        if (
+            allowedOrigins.includes(origin) ||
+            origin.endsWith(".vercel.app") ||
+            (process.env.FRONTEND_URL && origin.startsWith(process.env.FRONTEND_URL))
+        ) {
+            return callback(null, true);
+        }
+        return callback(new Error(`Blocked by CORS: ${origin}`), false);
+    },
     credentials: true
 }));
 

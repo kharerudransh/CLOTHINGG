@@ -19,6 +19,16 @@ async function createAndSendToken(user, res, purpose = "session") {
     return token;
 }
 
+const getCookieOptions = (maxAge = 7 * 24 * 60 * 60 * 1000) => {
+    const isProduction = process.env.NODE_ENV === "production";
+    return {
+        maxAge,
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax",
+    };
+};
+
 
 /*
 routes:-/api/auth/register
@@ -52,7 +62,8 @@ export const UserRegister = async (req, res) => {
         })
         const validationToken = await createAndSendToken(user, res, "verify-email");
 
-        const verificationUrl = `http://localhost:5173/verify?token=${validationToken}`;
+        const frontendBaseUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        const verificationUrl = `${frontendBaseUrl}/verify?token=${validationToken}`;
 
         //Sending Mail With Verification Link
         try {
@@ -280,10 +291,7 @@ export const UserVerify = async (req, res) => {
         await user.save();
 
         const newToken = await createAndSendToken(user, res);
-        res.cookie("jwt", newToken, {
-            maxAge: 7 * 24 * 60 * 60 * 1000,//7 days
-            httpOnly: true,
-        });
+        res.cookie("jwt", newToken, getCookieOptions());
 
         console.log(user.isVerified, user.email)
 
@@ -348,10 +356,7 @@ export const UserLogin = async (req, res) => {
             })
         }
         const token = await createAndSendToken(user, res);
-        res.cookie("jwt", token, {
-            maxAge: 7 * 24 * 60 * 60 * 1000,//7 days
-            httpOnly: true,
-        });
+        res.cookie("jwt", token, getCookieOptions());
         return res.status(201).json({
             success: true,
             message: "User logged in successfully",
@@ -405,8 +410,8 @@ export const UserForgotPassword = async (req, res) => {
                 message: "If this email exists and is verified, a reset link has been sent",
             })
         }
-        const token = await createAndSendToken(user, res, "reset-password");
-        const forgotPassUrl = `http://localhost:5173/reset-password?token=${token}`;
+        const frontendBaseUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+        const forgotPassUrl = `${frontendBaseUrl}/reset-password?token=${token}`;
         //sending mail with forgot password link
         try {
             await sendMail({
@@ -682,13 +687,9 @@ export const googleCallBack=async (req,res)=>{
                 role:"Buyer",
             });
             const token=await createAndSendToken(user);
+            res.cookie("jwt", token, getCookieOptions());
 
-            res.cookie("jwt",token,{
-                maxAge:7*24*60*60*1000,
-                httpOnly:true,
-            });
-
-            return res.redirect(`http://localhost:5173/`);
+            return res.redirect(`${process.env.FRONTEND_URL || "http://localhost:5173"}/`);
         }
         //login
         else{
@@ -705,11 +706,8 @@ export const googleCallBack=async (req,res)=>{
             }
 
             const token=await createAndSendToken(user);
-            res.cookie("jwt",token,{
-                maxAge:7*24*60*60*1000,
-                httpOnly:true,
-            });
-            return res.redirect(`http://localhost:5173/`);
+            res.cookie("jwt", token, getCookieOptions());
+            return res.redirect(`${process.env.FRONTEND_URL || "http://localhost:5173"}/`);
         }
     }
     catch(error){
@@ -769,7 +767,12 @@ export const userLogout=(async(req,res)=>{
             });
         }
 
-        res.clearCookie("jwt");
+        const isProduction = process.env.NODE_ENV === "production";
+        res.clearCookie("jwt", {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
+        });
         return res.status(200).json({
             success:true,
             message:"Logout successfully",

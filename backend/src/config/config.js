@@ -2,6 +2,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 
+process.env.PORT = process.env.PORT || "3000";
+
 if(!process.env.PORT){
     throw new Error("PORT is not defined in the environment variables");
 }

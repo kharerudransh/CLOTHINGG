@@ -2,8 +2,10 @@ import axios from "axios";
 import { setUser } from "../state/auth.slice";
 import { useDispatch } from "react-redux";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
+
 const authApiInstance=axios.create({
-    baseURL:"/api/auth/",
+    baseURL: `${API_BASE_URL}/api/auth/`,
     withCredentials:true,
     headers:{
         "Content-Type":"application/json"
