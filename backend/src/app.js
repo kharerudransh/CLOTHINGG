@@ -14,24 +14,16 @@ const app = express();
 app.set("trust proxy", 1);
 
 const allowedOrigins = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    process.env.FRONTEND_URL,
+  "http://localhost:5173",
+  process.env.FRONTEND_URL,   // https://<name>.vercel.app, no trailing slash
 ].filter(Boolean);
 
 app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
-        if (
-            allowedOrigins.includes(origin) ||
-            origin.endsWith(".vercel.app") ||
-            (process.env.FRONTEND_URL && origin.startsWith(process.env.FRONTEND_URL))
-        ) {
-            return callback(null, true);
-        }
-        return callback(new Error(`Blocked by CORS: ${origin}`), false);
-    },
-    credentials: true
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error(`Blocked by CORS: ${origin}`), false);
+  },
+  credentials: true
 }));
 
 app.use(express.json());
@@ -42,15 +34,11 @@ app.use(passport.initialize());
 
 //Google auth gmail sign in 
 passport.use(new GoogleStrategy({
-    clientID: CONFIG.GOOGLE_CLIENTID,
-    clientSecret: CONFIG.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/api/auth/google/callback",
-    scope: ["email", "profile"],
-    session:false,
-},( accessToken, refreshToken, profile, done) => {
-    // yahan Google se aaye profile info ko db mein save / match kar lenge
-    return done(null, profile); 
-}));
+  clientID: CONFIG.GOOGLE_CLIENTID,
+  clientSecret: CONFIG.GOOGLE_CLIENT_SECRET,
+  callbackURL: process.env.GOOGLE_CALLBACK_URL || "/api/auth/google/callback",
+  proxy: true,
+}, (accessToken, refreshToken, profile, done) => done(null, profile)));
 
 
 

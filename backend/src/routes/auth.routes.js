@@ -33,7 +33,7 @@ router.get("/getMe",authenticateUser,getMe);
 router.get("/google",passport.authenticate("google",{scope:["profile","email"]}));//will go to google signin page 
 
 router.get("/google/callback",
-    passport.authenticate("google",{failureRedirect:"/register",session:false}),//this line takes users data in req.user in response to auth code 
+    passport.authenticate("google",{failureRedirect: `${process.env.FRONTEND_URL || "http://localhost:5173"}/register`,session:false}),//this line takes users data in req.user in response to auth code 
     googleCallBack
 );
 

@@ -410,6 +410,7 @@ export const UserForgotPassword = async (req, res) => {
                 message: "If this email exists and is verified, a reset link has been sent",
             })
         }
+        const token = await createAndSendToken(user, res, "reset-password");
         const frontendBaseUrl = process.env.FRONTEND_URL || "http://localhost:5173";
         const forgotPassUrl = `${frontendBaseUrl}/reset-password?token=${token}`;
         //sending mail with forgot password link
