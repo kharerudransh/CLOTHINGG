@@ -1,4 +1,4 @@
-import { createBrowserRouter,Outlet } from "react-router-dom";
+import { createBrowserRouter, Outlet } from "react-router-dom";
 import Register from "../features/auth/pages/Register";
 import VerifyEmail from "../features/auth/pages/VerifyEmail";
 import Login from "../features/auth/pages/Login";
@@ -15,10 +15,12 @@ import DetailedProduct from "../features/products/page/DetailedProduct";
 import SellerProductDetail from "../features/products/page/SellerProductDetail";
 import HomeRedirect from "./HomeRedirect";
 import Protected from "../components/Protected";
-import RootLayout from "./RootLayout";   
+import RootLayout from "./RootLayout";
 import UserHomePage from "../features/User/pages/UserHomePage"
 import AllProductsPage from "../features/User/pages/AllProductsPage"
 import UserProfile from "../features/User/pages/UserProfile"
+import LandingPage from "./LandingPage";
+
 export const routes = createBrowserRouter([
     {
         element: <RootLayout />,   // ← sabse bahar wrap, sirf ek jagah handleGetMe() chalega
@@ -27,7 +29,7 @@ export const routes = createBrowserRouter([
                 path: "/",
                 element: (
                     <HomeRedirect>
-                        <h1>HOME PAGE</h1>
+                        <LandingPage />
                     </HomeRedirect>
                 ),
             },
@@ -44,12 +46,12 @@ export const routes = createBrowserRouter([
                     {
                         element: <SellerLayout />,
                         children: [
-                            { path: "/seller-home",    element: <SelllerHomePage /> },
-                            { path: "/add-product",    element: <CreateProduct /> },
-                            { path: "/see-products",   element: <SeeAllProducts /> },
+                            { path: "/seller-home", element: <SelllerHomePage /> },
+                            { path: "/add-product", element: <CreateProduct /> },
+                            { path: "/see-products", element: <SeeAllProducts /> },
                             { path: "/seller-profile", element: <SellerProfile /> },
                             { path: "/seller-product/:productId", element: <SellerProductDetail /> },
-                            
+
                         ]
                     }
                 ]
@@ -60,14 +62,14 @@ export const routes = createBrowserRouter([
                     {
                         element: <BuyerLayout />,
                         children: [
-                            { path: "/buyer-home",     element: <UserHomePage /> },
+                            { path: "/buyer-home", element: <UserHomePage /> },
                             { path: "/buyer-products", element: <AllProductsPage /> },
-                            { path: "/buyer-profile",  element: <UserProfile /> },
-                            
+                            { path: "/buyer-profile", element: <UserProfile /> },
+
                         ]
                     }
                 ]
             },
         ]
-    }   
+    }
 ]);
