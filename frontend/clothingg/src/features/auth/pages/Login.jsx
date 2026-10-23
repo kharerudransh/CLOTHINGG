@@ -205,7 +205,7 @@ const Login = () => {
 
             <button
               type="button"
-              onClick={() => window.location.href = 'http://localhost:3000/api/auth/google'}
+              onClick={() => window.location.href = '/api/auth/google'}
               className="w-full py-3.5 border border-[#e0d9d0] bg-white text-[#1a1a1a] text-[11px] font-semibold
                 tracking-[0.15em] uppercase flex items-center justify-center gap-3
                 transition-all duration-300 cursor-pointer
